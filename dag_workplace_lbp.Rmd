@@ -1,0 +1,416 @@
+---
+title: "Directed Acyclic Graphs (DAGs) in R"
+subtitle: "Workplace physical and social factors on low back pain"
+author: "Kenta Okuyama"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  revealjs::revealjs_presentation:
+    theme: simple
+    highlight: tango
+    transition: fade
+    center: false
+    incremental: true
+    slide_level: 2
+    self_contained: true
+bibliography: references.bib
+# csl: apa.csl
+link-citations: false
+css: styles.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  out.width = "75%",
+  fig.width = 6.3,
+  fig.height = 3.6
+)
+
+library(ggdag)
+library(dagitty)
+```
+
+
+## Agenda (40 min)
+
+- Why DAGs in epidemiology (5 min)
+- Study example (5 min): workplace physical and social factors → low back pain [@tamekuni2026]
+- Hands-on: build a DAG in R (25-30 min)
+- Q&A
+
+## Why DAGs?
+
+DAGs help you:
+
+- make causal assumptions explicit
+- identify confounders
+- decide what to (and what not to) adjust for
+- communicate analysis decisions transparently
+
+<small> Core references for causal diagrams in epidemiology: [@greenland1999; @shrier2008; @hernan2020] </small>
+
+## Key terms
+
+- Confounder: common cause of exposure & outcome
+- Mediator: lies on the causal pathway
+- Collider: common effect of two variables
+- Effect modifier: modify the effect of exposure on outcome
+
+- Adjustment rules (for total effect):
+  - adjust confounders
+  - avoid adjusting mediators
+  - avoid adjusting/conditioning on colliders
+
+<small> [@greenland1999; @hernan2020] </small>
+
+## Why not “adjust for everything”?
+
+Adjusting for “all measured variables” can:
+
+- block causal effect components (mediators)
+- open biasing paths (colliders)
+- reduce precision
+
+<small> [@shrier2008; @greenland1999] </small>
+
+
+## Example paper
+
+We use a published occupational health study as an example to ground variable choices and modeling style:
+
+- Japanese workers at small/medium sized enterprises, cross-sectional survey
+- Workplace physical and social factors: physical load, interpersonal relations stress
+- Low back pain (we skip the category acute/chronic pain for simplicity)
+
+<small> [@tamekuni2026] </small>
+
+## Background and our hypothesis
+
+- Previous studies on occupational pain investigated physical and social factors but without causal structure 
+- High physical load → Chronic low back pain
+- Good interpersonal relations at work may mitigate the association
+
+## Variables
+
+- Physical load (exposure)
+- Low back pain (outcome)
+- Age, Gender, Education, Smoking, Drinking, BMI, Work hours, Job statisfaction, Depression, Interpersonal relations stress (confounders/mediators/effect modifiers)
+
+## Start with exposure → outcome
+
+```{r}
+# 1. Name and position variables in a x-y dimension (physical load = p_load, low back pain = lbp)
+coords1 <- list(
+  x = c(p_load = 1, lbp = 3),
+  y = c(p_load = 0, lbp = 0)
+)
+
+# 2. Define casual structures
+g1 <- dagify(
+  lbp ~ p_load,
+  
+  # set position of variables
+  coords = coords1,
+  
+  # label variables
+  labels = c(
+    "lbp" = "LB pain",
+    "p_load" = "Physical\n load"  
+    ),
+  
+  # define exposure and outcome
+  exposure = "p_load",
+  outcome = "lbp"
+)
+```
+
+## DAG 1
+```{r}
+ggdag(g1, text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+## Add socio-demographic factors
+```{r}
+# 1. Name and position variables in a x-y dimension
+coords2 <- list(
+  x = c(age = -2.5, gender = -2.5, education = -2, income = -2, p_load = 1, lbp = 3),
+  y = c(age = 0, gender = -0.5, education = 0.5, income = 1, p_load = 0, lbp = 0)
+)
+
+# 2. Define casual structures
+g2 <- dagify(
+  lbp ~ p_load + age + gender + education + income,
+  p_load ~ age + gender + education,
+  education ~ gender,
+  income ~ age + gender + education,
+  coords = coords2,
+  labels = c(
+    "lbp" = "LB pain",
+    "p_load" = "Physical\n load",
+    "age" = "Age",
+    "gender" = "Gender",
+    "education" = "Education",
+    "income" = "Income"
+  ),
+  exposure = "p_load",
+  outcome = "lbp"
+  # latent = "pa_b"
+)
+```
+
+## DAG 2
+```{r}
+ggdag(g2, text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+
+
+
+## Add lifestyle factors
+
+```{r}
+# 1. Name and position variables in a x-y dimension
+coords3 <- list(
+  x = c(age = -2, gender = -2, education = -2, income = -2, drink = -1, smoke = -1, sleep = -1, pa = -1, p_load = 1, lbp = 3),
+  y = c(age = 0, gender = -0.5, education = 0.5, income = 1, drink = 1, smoke = 0.5, sleep = -0.5, pa = -1, p_load = 0, lbp = 0)
+)
+
+# 2. Define causal structures
+g3 <- dagify(
+  lbp ~ p_load + age + gender + education + income + drink + smoke + sleep + pa,
+  p_load ~ age + gender + education,
+  education ~ gender,
+  income ~ age + gender + education,
+  drink ~ age + gender + education + income + pa,
+  smoke ~ age + gender + education + income + pa,
+  sleep ~  age + gender + drink + smoke + pa + p_load + lbp,
+  pa ~ age + gender + drink + smoke + sleep + p_load + lbp,
+  
+  coords = coords3,
+  labels = c(
+    "lbp" = "LB pain",
+    "p_load" = "Physical\n load",
+    "age" = "Age",
+    "gender" = "Gender",
+    "education" = "Education",
+    "drink" = "Drinking",
+    "smoke" = "Smoking",
+    "sleep" = "Sleep\n quality",
+    "pa" = "Physical\n activity",
+    "income" = "Income"
+  ),
+  exposure = "p_load",
+  outcome = "lbp"
+
+)
+```
+
+## DAG 3
+```{r}
+ggdag(g3, text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+
+## Step 3: Introduce PhysicalLoad as a potential effect modifier
+
+We now ask:
+
+Does interpersonal stress have a different effect on chronic LBP when physical load is high vs low?
+
+Effect modification is a modeling/interpretation question; DAGs mainly help with confounding control. [@hernan2020]
+
+But we still must decide: is PhysicalLoad also a confounder?
+
+We’ll show two defensible options.
+
+## Option A: PhysicalLoad is an effect modifier only (not a confounder)
+
+Assumption:
+
+- Physical load affects chronic LBP,
+- but does not cause interpersonal relations stress (after accounting for job type, etc.)
+
+## Option A: PhysicalLoad is an effect modifier only (not a confounder)
+```{r}
+dag3A <- dagitty("dag {
+  InterpersonalStress -> LBP_Chronic
+  InterpersonalStress -> MentalHealth -> LBP_Chronic
+
+  PhysicalLoad -> LBP_Chronic
+
+  Age -> InterpersonalStress
+  Age -> MentalHealth
+  Age -> LBP_Chronic
+  Age -> PhysicalLoad
+
+  Sex -> InterpersonalStress
+  Sex -> MentalHealth
+  Sex -> LBP_Chronic
+  Sex -> PhysicalLoad
+
+  JobType -> InterpersonalStress
+  JobType -> LBP_Chronic
+  JobType -> PhysicalLoad
+
+  WorkHours -> InterpersonalStress
+  WorkHours -> MentalHealth
+  WorkHours -> LBP_Chronic
+
+  PriorLBP -> InterpersonalStress
+  PriorLBP -> LBP_Chronic
+}")
+
+```
+
+## Option A: PhysicalLoad is an effect modifier only (not a confounder)
+```{r}
+ggdag(dag3A, layout = "stress") +
+  geom_dag_edges() +
+  geom_dag_label(size = 3.3) +
+  theme_dag()
+```
+
+## Option B: PhysicalLoad is both a confounder and effect modifier
+
+Assumption:
+- Physical load influences interpersonal stress (e.g., demanding physical roles affect teamwork/strain),
+- and also affects chronic LBP.
+
+## Option B: PhysicalLoad is both a confounder and effect modifier
+```{r}
+dag3B <- dagitty("dag {
+  InterpersonalStress -> LBP_Chronic
+  InterpersonalStress -> MentalHealth -> LBP_Chronic
+
+  PhysicalLoad -> InterpersonalStress
+  PhysicalLoad -> LBP_Chronic
+
+  Age -> InterpersonalStress
+  Age -> MentalHealth
+  Age -> LBP_Chronic
+  Age -> PhysicalLoad
+
+  Sex -> InterpersonalStress
+  Sex -> MentalHealth
+  Sex -> LBP_Chronic
+  Sex -> PhysicalLoad
+
+  JobType -> InterpersonalStress
+  JobType -> LBP_Chronic
+  JobType -> PhysicalLoad
+
+  WorkHours -> InterpersonalStress
+  WorkHours -> MentalHealth
+  WorkHours -> LBP_Chronic
+
+  PriorLBP -> InterpersonalStress
+  PriorLBP -> LBP_Chronic
+}")
+
+```
+
+## Option B: PhysicalLoad is both a confounder and effect modifier
+```{r}
+ggdag(dag3B, layout = "stress") +
+  geom_dag_edges() +
+  geom_dag_label(size = 3.3) +
+  theme_dag()
+```
+
+## Compute minimal adjustment sets (Option A)
+
+```{r}
+adjustmentSets(dag3A, exposure = "InterpersonalStress", outcome = "LBP_Chronic")
+```
+
+Interpretation:
+
+- Under Option A, physical load may not be required for confounding control.
+- You can still include it to test effect modification.
+
+<small> dagitty reference: [@textor2016] </small>
+
+
+## Compute minimal adjustment sets (Option B)
+
+```{r}
+adjustmentSets(dag3B, exposure = "InterpersonalStress", outcome = "LBP_Chronic")
+```
+
+Interpretation:
+
+- Under Option B, physical load is part of confounding control and can be used for effect modification.
+
+## Practical decision slide (what you say)
+
+- Pick one DAG that matches your substantive belief.
+
+- Choose one feasible adjustment set.
+
+- Explain why you did not adjust for:
+  - MentalHealth (mediator) if total effect
+  - any selection variables / colliders (if applicable)
+
+<small> [@greenland1999; @shrier2008; @hernan2020] </small>
+
+
+
+## Paper-style modeling approach (illustrative)
+
+Your paper used multinomial logistic regression for none / acute / chronic. [@tamekuni2026]
+
+Below is a template showing:
+
+- baseline adjustment (choose based on your DAG)
+- effect modification test via interaction term
+
+```{r eval=FALSE, include=FALSE}
+# install.packages("nnet")
+library(nnet)
+
+# Example data requirements
+# df$LBP_cat <- factor(df$LBP_cat, levels = c("none", "acute", "chronic"))
+# Variables: InterpersonalStress, PhysicalLoad, Age, Sex, JobType, WorkHours, PriorLBP
+
+# Choose an adjustment set (example):
+# adj_vars <- c("Age","Sex","JobType","WorkHours","PriorLBP")  # replace as needed
+
+# Fit model with effect modification:
+fit_em <- multinom(
+  LBP_cat ~ InterpersonalStress * PhysicalLoad + Age + Sex + JobType + WorkHours + PriorLBP,
+  data = df
+)
+
+summary(fit_em)
+
+# Chronic vs none coefficients:
+coef(fit_em)["chronic", ]
+```
+
+
+## How to present effect modification (cleanly)
+
+Instead of only reporting an interaction p-value, show predicted chronic LBP probabilities (or ORs)
+across interpersonal stress, by physical load strata.
+
+<small> (Once you know your variable coding, you can add a plot chunk here.) </small>
+
+## Take-home points
+
+- DAGs make causal assumptions explicit and improve adjustment decisions. [@greenland1999]
+- Separate confounders vs mediators vs colliders to avoid bias. [@shrier2008; @hernan2020]
+- dagitty makes the “why we adjusted for X” reproducible. [@textor2016]
+- Physical load can be:
+  - effect modifier only (Option A), or
+  - both confounder and effect modifier (Option B)
+
+## References
+
+::: {#refs}
+:::
+

@@ -1,0 +1,27 @@
+/* References slide: smaller text + scroll if too long */
+
+.reveal .title-slide h2 {
+  font-size: 0.65em;
+  font-weight: 400;
+}
+
+.refs-slide {
+  font-size: 0.70em;
+  line-height: 1.15;
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 12px;
+}
+
+.reveal::after {
+  content: "";
+  position: fixed;
+  bottom: 25px;
+  left: 25px;
+  width: 110px;
+  height: 110px;
+  background-image: url("NEXTBRIDGE.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  z-index: 100;
+}
