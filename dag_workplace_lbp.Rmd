@@ -1,7 +1,7 @@
 ---
 title: "Directed Acyclic Graphs (DAGs) in R"
 subtitle: "Workplace physical and social factors on low back pain"
-author: "Kenta Okuyama"
+author: "Kenta Okuyama, MPH, PhD"
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 output:
   revealjs::revealjs_presentation:
@@ -49,58 +49,88 @@ DAGs help you:
 - decide what to (and what not to) adjust for
 - communicate analysis decisions transparently
 
+```{r}
+
+```
+
 <small> Core references for causal diagrams in epidemiology: [@greenland1999; @shrier2008; @hernan2020] </small>
 
-## Key terms
+## Key terms - confounder
+- Common cause of exposure & outcome
+```{r}
 
-- Confounder: common cause of exposure & outcome
-- Mediator: lies on the causal pathway
-- Collider: common effect of two variables
-- Effect modifier: modify the effect of exposure on outcome
+```
 
-- Adjustment rules (for total effect):
-  - adjust confounders
-  - avoid adjusting mediators
-  - avoid adjusting/conditioning on colliders
+## Key terms - mediator
+- Lies on the causal pathway
+
+```{r}
+
+```
+
+## Key terms - collider
+- Common effect of two variables
+```{r}
+
+```
+
+## Key terms - effect modifier
+- Modify the effect of exposure on outcome
+```{r}
+
+```
+
+## Adjustment rules (for total effect)
+- adjust confounders
+- avoid adjusting mediators
+- avoid adjusting/conditioning on colliders
 
 <small> [@greenland1999; @hernan2020] </small>
 
-## Why not “adjust for everything”?
+## Why “adjust for confounders”?
 
-Adjusting for “all measured variables” can:
+```{r}
 
-- block causal effect components (mediators)
-- open biasing paths (colliders)
-- reduce precision
+```
 
-<small> [@shrier2008; @greenland1999] </small>
+## Why not “adjust for mediators”?
 
+```{r}
 
-## Example paper
+```
 
-We use a published occupational health study as an example to ground variable choices and modeling style:
+## Why not “adjust for colliders”?
 
-- Japanese workers at small/medium sized enterprises, cross-sectional survey
-- Workplace physical and social factors: physical load, interpersonal relations stress
-- Low back pain (we skip the category acute/chronic pain for simplicity)
+```{r}
+
+```
+
+## Building a DAG
+
+Study example:
+
+- Cross-sectional survey-based study
+- Japanese workers at small/medium sized enterprises (n=)
+- Workplace physical and social factors → Low back pain
 
 <small> [@tamekuni2026] </small>
 
-## Background and our hypothesis
+## Background and hypothesis
 
-- Previous studies on occupational pain investigated physical and social factors but without causal structure 
-- High physical load → Chronic low back pain
-- Good interpersonal relations at work may mitigate the association
+- Previous studies on occupational pain investigated physical and social factors but without causal structure
+- High physical load (physical factor) → Low back pain
+- Good interpersonal relations (social factor) may mitigate the association
 
 ## Variables
 
 - Physical load (exposure)
 - Low back pain (outcome)
-- Age, Gender, Education, Smoking, Drinking, BMI, Work hours, Job statisfaction, Depression, Interpersonal relations stress (confounders/mediators/effect modifiers)
+- Age, Gender, Education, Smoking, Drinking, Body mass index (BMI), Work hours, Job statisfaction, Depression, Interpersonal relations stress (confounders/mediators/effect modifiers)
 
 ## Start with exposure → outcome
 
 ```{r}
+library(ggdag)
 # 1. Name and position variables in a x-y dimension (physical load = p_load, low back pain = lbp)
 coords1 <- list(
   x = c(p_load = 1, lbp = 3),
@@ -157,7 +187,6 @@ g2 <- dagify(
   ),
   exposure = "p_load",
   outcome = "lbp"
-  # latent = "pa_b"
 )
 ```
 
