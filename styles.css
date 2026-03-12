@@ -1,11 +1,11 @@
 /* References slide: smaller text + scroll if too long */
 
-.reveal .title-slide h2 {
+.reveal .title-slide .subtitle {
   font-size: 0.65em;
   font-weight: 400;
 }
 
-.refs-slide {
+.reveal section.refs-slide #refs {
   font-size: 0.70em;
   line-height: 1.15;
   max-height: 600px;

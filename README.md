@@ -1,11 +1,16 @@
 # DAG seminar
 
-Reproducible slide deck + code for a short lecture on DAGs in R.
+Reproducible code and slides for a short lecture on DAGs in R.
+The session is a part of NextGen Health Research Bridge.
+Follow us:
+
+https://www.linkedin.com/company/112455996/admin/dashboard/
+
 
 ## Contents
 
 - dag_workplace_lbp.Rmd – Reveal.js slide deck source
-- references.bib – BibTeX references for citations
+- dag_example.R - Example codes to create DAGs.
 
 ## Requirements
 
