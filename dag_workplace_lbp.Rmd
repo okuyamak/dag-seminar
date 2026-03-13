@@ -33,8 +33,10 @@ library(ggdag)
 ## Agenda (40 min)
 
 - Introduction of DAGs (5 min)
-- Study example (5 min): workplace physical and social factors → low back pain [@tamekuni2026]
-- Hands-on: build a DAG in R (25-30 min)
+- Study example (5 min)
+  - Workplace physical and social factors → low back pain [@tamekuni2026]
+- Hands-on
+  - Build a DAG in R (25-30 min)
 - Q&A
 
 ## Introduction of DAGs
@@ -46,51 +48,63 @@ DAGs help you:
 - decide what to (and what not to) adjust for
 - communicate analysis decisions transparently
 
-<small> Core references for causal diagrams in epidemiology: [@greenland1999; @shrier2008; @hernan2020] </small>
+<small> [@greenland1999; @shrier2008; @hernan2020] </small>
 
 ## Key terms - confounder
-- Common cause of exposure & outcome
+- Common cause of exposure and outcome
 
 ```{r echo=FALSE}
-coords1 <- list(
-  x = c(exposure = 1, outcome = 3),
-  y = c(exposure = 0, outcome = 0)
+coords_con <- list(
+  x = c(confounder = 0, exposure = 1, outcome = 3),
+  y = c(confounder = 0.5, exposure = 0, outcome = 0)
 )
-g1 <- dagify(
-  outcome ~ exposure,
-  coords = coords1,
+dag_con <- dagify(
+  outcome ~ exposure + confounder,
+  exposure ~ confounder,
+  coords = coords_con,
   labels = c(
     "exposure" = "Exposure",
-    "outcome" = "Outcome"  
+    "outcome" = "Outcome",
+    "confounder" = "Confounder"
     ),
   exposure = "exposure",
   outcome = "outcome"
 )
-ggdag(g1, text = FALSE, use_labels = "label") +
+```
+
+```{r, echo=FALSE}
+ggdag(dag_con, text = FALSE, use_labels = "label") +
   theme_dag()
 ```
 
+
 ## Key terms - mediator
-- Lies on the causal pathway
+- Lies on the causal pathway between exposure and outcome
 
 ```{r, echo=FALSE}
-coords2 <- list(
-  x = c(exposure = 1, mediator = 2, outcome = 3),
-  y = c(exposure = 0, mediator = 0.5, outcome = 0)
+coords_med <- list(
+  x = c(confounder = 0, exposure = 1, mediator = 2, outcome = 3),
+  y = c(confounder = 0.5, exposure = 0, mediator = 0.5, outcome = 0)
 )
-g2 <- dagify(
-  outcome ~ exposure + mediator,
-  exposure ~ mediator,
-  coords = coords2,
+dag_med <- dagify(
+  outcome ~ exposure + confounder + mediator,
+  exposure ~ confounder,
+  mediator ~ exposure,
+  coords = coords_med,
   labels = c(
     "exposure" = "Exposure",
     "outcome" = "Outcome",
+    "confounder" = "Confounder",
     "mediator" = "Mediator"
     ),
   exposure = "exposure",
   outcome = "outcome"
 )
-ggdag(g2, text = FALSE, use_labels = "label") +
+
+```
+
+```{r, echo=FALSE}
+ggdag(dag_med, text = FALSE, use_labels = "label") +
   theme_dag()
 ```
 
@@ -98,25 +112,30 @@ ggdag(g2, text = FALSE, use_labels = "label") +
 - Common effect of two variables
 
 ```{r, echo=FALSE}
-coords3 <- list(
-  x = c(exposure = 1, mediator = 2, collider = 2, outcome = 3),
-  y = c(exposure = 0, mediator = 0.5, collider = -0.5, outcome = 0)
+coords_col <- list(
+  x = c(confounder = 0, exposure = 1, mediator = 2, collider = 2, outcome = 3),
+  y = c(confounder = 0.5, exposure = 0, mediator = 0.5, collider = -0.5, outcome = 0)
 )
-g3 <- dagify(
-  outcome ~ exposure + mediator,
-  exposure ~ mediator,
+dag_col <- dagify(
+  outcome ~ exposure + confounder + mediator,
+  exposure ~ confounder,
+  mediator ~ exposure,
   collider ~ exposure + outcome,
-  coords = coords3,
+  coords = coords_col,
   labels = c(
     "exposure" = "Exposure",
     "outcome" = "Outcome",
+    "confounder" = "Confounder",
     "mediator" = "Mediator",
     "collider" = "Collider"
     ),
   exposure = "exposure",
   outcome = "outcome"
 )
-ggdag(g3, text = FALSE, use_labels = "label") +
+```
+
+```{r, echo=FALSE}
+ggdag(dag_col, text = FALSE, use_labels = "label") +
   theme_dag()
 ```
 
@@ -125,18 +144,20 @@ ggdag(g3, text = FALSE, use_labels = "label") +
 - Modify the effect of exposure on outcome
 
 ```{r, echo=FALSE}
-coords4 <- list(
-  x = c(exposure = 1, mediator = 2, collider = 2, emodifier = 2.5, outcome = 3),
-  y = c(exposure = 0, mediator = 0.5, collider = -0.5, emodifier = -1, outcome = 0)
+coords_em <- list(
+  x = c(confounder = 0, exposure = 1, mediator = 2, collider = 2, emodifier = 2.5, outcome = 3),
+  y = c(confounder = 0.5, exposure = 0, mediator = 0.5, collider = -0.5, emodifier = -1, outcome = 0)
 )
-g4 <- dagify(
-  outcome ~ exposure + mediator + emodifier,
-  exposure ~ mediator,
+dag_em <- dagify(
+  outcome ~ exposure + confounder + mediator + emodifier,
+  exposure ~ confounder,
+  mediator ~ exposure,
   collider ~ exposure + outcome,
-  coords = coords4,
+  coords = coords_em,
   labels = c(
     "exposure" = "Exposure",
     "outcome" = "Outcome",
+    "confounder" = "Confounder",
     "mediator" = "Mediator",
     "collider" = "Collider",
     "emodifier" = "Effect modifier"
@@ -144,7 +165,10 @@ g4 <- dagify(
   exposure = "exposure",
   outcome = "outcome"
 )
-ggdag(g4, text = FALSE, use_labels = "label") +
+```
+
+```{r, echo=FALSE}
+ggdag(dag_em, text = FALSE, use_labels = "label") +
   theme_dag()
 ```
 
@@ -157,21 +181,92 @@ ggdag(g4, text = FALSE, use_labels = "label") +
 
 ## Why “adjust for confounders”?
 
-```{r}
-
+```{r echo=FALSE}
+dag_con <- dagify(
+  outcome ~ exposure + confounder,
+  exposure ~ confounder,
+  coords = coords_con,
+  labels = c(
+    "exposure" = "Coffee",
+    "outcome" = "Lung cancer",
+    "confounder" = "Smoking"
+    ),
+  exposure = "exposure",
+  outcome = "outcome"
+)
 ```
+
+```{r, echo=FALSE}
+ggdag(dag_con, text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+## Why “adjust for confounders”? 
+
+```{r, echo=FALSE}
+ggdag_adjust(dag_con, "confounder", text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
 
 ## Why not “adjust for mediators”?
 
-```{r}
+```{r, echo=FALSE}
+dag_med <- dagify(
+  outcome ~ exposure + mediator,
+  mediator ~ exposure,
+  coords = coords_med,
+  labels = c(
+    "exposure" = "Physical\n activity",
+    "outcome" = "Depression",
+    "mediator" = "Sleep\n quality"
+    ),
+  exposure = "exposure",
+  outcome = "outcome"
+)
+```
 
+```{r, echo=FALSE}
+ggdag(dag_med, text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+## Why not "adjust for mediators"?
+```{r, echo=FALSE}
+ggdag_adjust(dag_med, "mediator", text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+
+## Why not “adjust for colliders”?
+
+```{r, echo=FALSE}
+dag_col <- dagify(
+  outcome ~ exposure,
+  collider ~ exposure + outcome,
+  coords = coords_col,
+  labels = c(
+    "exposure" = "Physical\n activity",
+    "outcome" = "Diet\n quality",
+    "collider" = "BMI"
+    ),
+  exposure = "exposure",
+  outcome = "outcome"
+)
+```
+
+```{r, echo=FALSE}
+ggdag(dag_col, text = FALSE, use_labels = "label") +
+  theme_dag()
 ```
 
 ## Why not “adjust for colliders”?
 
-```{r}
-
+```{r, echo=FALSE}
+ggdag_adjust(dag_col, "collider", text = FALSE, use_labels = "label") +
+  theme_dag()
 ```
+
 
 ## Building a DAG
 
