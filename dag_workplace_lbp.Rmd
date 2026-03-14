@@ -35,8 +35,8 @@ library(ggdag)
 - Introduction of DAGs (5 min)
 - Study example (5 min)
   - Workplace physical and social factors → low back pain [@tamekuni2026]
-- Hands-on
-  - Build a DAG in R (25-30 min)
+- Hands-on (25-30 min)
+  - Build a DAG in R 
 - Q&A
 
 ## Introduction of DAGs
@@ -196,6 +196,8 @@ dag_con <- dagify(
 )
 ```
 
+- Back door path Coffee <- Smoking -> Lung cancer
+
 ```{r, echo=FALSE}
 ggdag(dag_con, text = FALSE, use_labels = "label") +
   theme_dag()
@@ -207,7 +209,6 @@ ggdag(dag_con, text = FALSE, use_labels = "label") +
 ggdag_adjust(dag_con, "confounder", text = FALSE, use_labels = "label") +
   theme_dag()
 ```
-
 
 ## Why not “adjust for mediators”?
 
@@ -236,7 +237,6 @@ ggdag(dag_med, text = FALSE, use_labels = "label") +
 ggdag_adjust(dag_med, "mediator", text = FALSE, use_labels = "label") +
   theme_dag()
 ```
-
 
 ## Why not “adjust for colliders”?
 
@@ -273,22 +273,22 @@ ggdag_adjust(dag_col, "collider", text = FALSE, use_labels = "label") +
 Study example:
 
 - Cross-sectional survey-based study
-- Japanese workers at small/medium sized enterprises (n=)
+- Japanese workers at small/medium sized enterprises (n=762)
 - Workplace physical and social factors → Low back pain
 
 <small> [@tamekuni2026] </small>
 
 ## Background and hypothesis
 
-- Previous studies on occupational pain investigated physical and social factors but without causal structure
 - High physical load (physical factor) → Low back pain
 - Good interpersonal relations (social factor) may mitigate the association
+- Previous studies on investigated physical and social factors on low back pain without causal structure
 
 ## Variables
 
-- Physical load (exposure)
-- Low back pain (outcome)
-- Age, Gender, Education, Smoking, Drinking, Body mass index (BMI), Job statisfaction, Depression, Interpersonal relations stress (confounders/mediators/effect modifiers)
+- Physical load - low/high (exposure)
+- Low back pain - yes/no (outcome)
+- Age, Gender, Education, Smoking, Drinking, Body mass index (BMI), Job satisfaction, Depression, Interpersonal relations stress (confounders/mediators/effect modifiers)
 
 ## Start with exposure → outcome
 
@@ -460,37 +460,25 @@ ggdag(g4, text = FALSE, use_labels = "label") +
 ## Identifying an adjustment set
 
 ```{r}
-# dagitty::adjustmentSets(g4, exposure = "p_load", outcome = "lbp")
+ggdag_adjustment_set(g4, text = FALSE, use_labels = "label") +
+  theme_dag()
 ```
-
-Interpretation:
-
-- 
-- 
-
-<small> dagitty reference: [@textor2016] </small>
-
-
-## Practical decision slide (what you say)
-
-- Pick one DAG that matches your substantive belief.
-
-- Choose one feasible adjustment set.
-
-- Explain why you did not adjust for:
-  - MentalHealth (mediator) if total effect
-  - any selection variables / colliders (if applicable)
-
-<small> [@greenland1999; @shrier2008; @hernan2020] </small>
 
 ## Take-home points
 
-- DAGs make causal assumptions explicit and improve adjustment decisions. [@greenland1999]
-- Separate confounders vs mediators vs colliders to avoid bias. [@shrier2008; @hernan2020]
-- dagitty makes the “why we adjusted for X” reproducible. [@textor2016]
-- Physical load can be:
-  - effect modifier only (Option A), or
-  - both confounder and effect modifier (Option B)
+- DAGs make causal assumptions explicit and improve adjustment decisions [@greenland1999]
+- Separate confounders vs mediators vs colliders to avoid bias [@shrier2008; @hernan2020]
+- Build DAGs based on your subjective expertise
+
+## Slides and codes
+
+Slides and codes:
+
+https://github.com/okuyamak/dag-seminar
+
+Follow us:
+
+https://www.linkedin.com/company/nextgen-health-research-bridge
 
 ## References {.refs-slide}
 
