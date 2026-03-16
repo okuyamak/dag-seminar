@@ -1,7 +1,7 @@
 /* References slide: smaller text + scroll if too long */
 
 .reveal .title-slide .subtitle {
-  font-size: 0.65em;
+  font-size: 0.50em;
   font-weight: 400;
 }
 
@@ -10,7 +10,7 @@
   line-height: 1.15;
   max-height: 600px;
   overflow-y: auto;
-  padding-right: 12px;
+  padding-right: 10px;
 }
 
 .reveal::after {

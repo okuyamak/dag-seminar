@@ -32,16 +32,16 @@ library(ggdag)
 
 ## Agenda (40 min)
 
-- Introduction of DAGs (5 min)
-- Study example (5 min)
-  - Workplace physical and social factors → low back pain [@tamekuni2026]
-- Hands-on (25-30 min)
-  - Build a DAG in R 
-- Q&A
+- Introduction of DAGs (10 min)
+  - Why DAGs
+  - Key terms
+- Build a DAG in R (30 min)
+  - Study example - Workplace physical and social factors on low back pain [@tamekuni2026]
+- Q&A (15 min)
 
 ## Introduction of DAGs
 
-DAGs help you:
+Why DAGs - it helps you:
 
 - make causal assumptions explicit
 - identify confounders
@@ -183,6 +183,25 @@ ggdag(dag_em, text = FALSE, use_labels = "label") +
 
 ```{r echo=FALSE}
 dag_con <- dagify(
+  outcome ~ exposure,
+  coords = coords_con,
+  labels = c(
+    "exposure" = "Coffee",
+    "outcome" = "Lung cancer"
+    ),
+  exposure = "exposure",
+  outcome = "outcome"
+)
+```
+
+```{r, echo=FALSE}
+ggdag(dag_con, text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+## Why “adjust for confounders”?
+```{r echo=FALSE}
+dag_con <- dagify(
   outcome ~ exposure + confounder,
   exposure ~ confounder,
   coords = coords_con,
@@ -196,7 +215,7 @@ dag_con <- dagify(
 )
 ```
 
-- Back door path Coffee <- Smoking -> Lung cancer
+- Back door path Coffee ← Smoking → Lung cancer
 
 ```{r, echo=FALSE}
 ggdag(dag_con, text = FALSE, use_labels = "label") +
@@ -207,6 +226,26 @@ ggdag(dag_con, text = FALSE, use_labels = "label") +
 
 ```{r, echo=FALSE}
 ggdag_adjust(dag_con, "confounder", text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+## Why not “adjust for mediators”?
+
+```{r, echo=FALSE}
+dag_med <- dagify(
+  outcome ~ exposure,
+  coords = coords_med,
+  labels = c(
+    "exposure" = "Physical\n activity",
+    "outcome" = "Depression"
+    ),
+  exposure = "exposure",
+  outcome = "outcome"
+)
+```
+
+```{r, echo=FALSE}
+ggdag(dag_med, text = FALSE, use_labels = "label") +
   theme_dag()
 ```
 
@@ -243,6 +282,26 @@ ggdag_adjust(dag_med, "mediator", text = FALSE, use_labels = "label") +
 ```{r, echo=FALSE}
 dag_col <- dagify(
   outcome ~ exposure,
+  coords = coords_col,
+  labels = c(
+    "exposure" = "Physical\n activity",
+    "outcome" = "Diet\n quality"
+    ),
+  exposure = "exposure",
+  outcome = "outcome"
+)
+```
+
+```{r, echo=FALSE}
+ggdag(dag_col, text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+## Why not “adjust for colliders”?
+
+```{r, echo=FALSE}
+dag_col <- dagify(
+  outcome ~ exposure,
   collider ~ exposure + outcome,
   coords = coords_col,
   labels = c(
@@ -259,6 +318,7 @@ dag_col <- dagify(
 ggdag(dag_col, text = FALSE, use_labels = "label") +
   theme_dag()
 ```
+
 
 ## Why not “adjust for colliders”?
 
@@ -461,6 +521,79 @@ ggdag(g4, text = FALSE, use_labels = "label") +
 
 ```{r}
 ggdag_adjustment_set(g4, text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+## Add unmeasured variables
+
+```{r}
+# 1. Name and position variables in a x-y dimension
+coords5 <- list(
+  x = c(
+    prev_pa = -3.2,
+    age = -2.5, gender = -2, education = -2, income = -2,
+    drink = -1, smoke = -1, sleep = -0.5, pa = -1, bmi = 0,
+    job_sat = 2, depress = 2, int_stress = 1, p_load = 1, lbp = 3
+  ),
+  y = c(
+    prev_pa = -1.8,
+    age = -0.25, gender = -1, education = 0.5, income = 1,
+    drink = 1, smoke = 0.5, sleep = -0.5, pa = -1, bmi = -1.25,
+    job_sat = -1, depress = 1, int_stress = -0.75, p_load = 0, lbp = 0
+  )
+)
+
+# 2. Define causal structures
+g5 <- dagify(
+  lbp ~ p_load + age + gender + education + income + drink + smoke + sleep + pa + bmi + job_sat + depress + int_stress,
+  p_load ~ age + gender + education + drink + smoke + bmi,
+  education ~ gender,
+  income ~ age + gender + education,
+  drink ~ age + gender + education + income + prev_pa,
+  smoke ~ age + gender + education + income + prev_pa,
+  sleep ~ age + gender + education + income + drink + smoke + pa,
+  pa ~ age + gender + education + income + prev_pa,
+  bmi ~ age + gender + education + income + drink + smoke + sleep + pa + prev_pa,
+  job_sat ~ p_load + int_stress,
+  depress ~ p_load + int_stress,
+  int_stress ~ age + gender + education,
+
+  coords = coords5,
+  labels = c(
+    "prev_pa" = "U: Previous PA\n / health behaviour",
+    "lbp" = "LB pain",
+    "p_load" = "Physical\nload",
+    "age" = "Age",
+    "gender" = "Gender",
+    "education" = "Education",
+    "drink" = "Drinking",
+    "smoke" = "Smoking",
+    "sleep" = "Sleep\nquality",
+    "pa" = "Physical\nactivity",
+    "income" = "Income",
+    "bmi" = "BMI",
+    "job_sat" = "Job\nsatisfaction",
+    "depress" = "Depression",
+    "int_stress" = "Interpersonal\nstress"
+  ),
+  exposure = "p_load",
+  outcome = "lbp",
+  latent = "prev_pa"
+)
+
+```
+
+## DAG 5
+```{r}
+ggdag(g5, text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+
+## Identifying an adjustment set
+
+```{r}
+ggdag_adjustment_set(g5, text = FALSE, use_labels = "label") +
   theme_dag()
 ```
 
