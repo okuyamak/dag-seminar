@@ -5,12 +5,34 @@
   font-weight: 400;
 }
 
-.reveal section.refs-slide #refs {
-  font-size: 0.60em;
-  line-height: 1.15;
-  max-height: 600px;
+/* References slide */
+.reveal .slides section.refs-slide {
+  font-size: 0.62em;
+}
+
+.reveal .slides section.refs-slide h2 {
+  margin-bottom: 0.5em;
+}
+
+.reveal .slides section.refs-slide #refs {
+  max-height: 74vh;
   overflow-y: auto;
-  padding-right: 10px;
+  padding-right: 0.6em;
+}
+
+.reveal .slides section.refs-slide .csl-entry {
+  margin-bottom: 0.7em;
+  line-height: 1.25;
+  padding-left: 1.6em;
+  text-indent: -1.6em;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.reveal .slides section.refs-slide a,
+.reveal .slides section.refs-slide code {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .reveal::after {

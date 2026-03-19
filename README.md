@@ -11,8 +11,8 @@ https://www.linkedin.com/company/nextgen-health-research-bridge
 
 ## Contents
 
-- dag_workplace_lbp.Rmd – Reveal.js slide deck source
-- dag_example.R - Example codes to create DAGs
+- dag_example.R - Example codes to reproduce DAGs in the lecture slides
+
 
 ## Requirements
 
@@ -24,9 +24,3 @@ https://www.linkedin.com/company/nextgen-health-research-bridge
 View the slides here:
 
 https://okuyamak.github.io/dag-seminar/slides/dag_workplace_lbp.html
-
-## Download
-
-Download the full repository:
-
-https://github.com/okuyamak/dag-seminar/archive/refs/heads/main.zip

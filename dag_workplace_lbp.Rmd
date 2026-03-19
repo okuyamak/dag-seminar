@@ -354,7 +354,7 @@ Study example:
 
 ```{r}
 library(ggdag)
-# 1. Name and position variables in a x-y dimension (physical load = p_load, low back pain = lbp)
+# 1. Position variables in x-y coordinates (physical load = p_load, low back pain = lbp)
 coords1 <- list(
   x = c(p_load = 1, lbp = 3),
   y = c(p_load = 0, lbp = 0)
@@ -387,10 +387,12 @@ ggdag(g1, text = FALSE, use_labels = "label") +
 
 ## Add socio-demographic factors
 ```{r}
-# 1. Name and position variables in a x-y dimension
+# 1. Position variables in x-y coordinates
 coords2 <- list(
-  x = c(age = -2.5, gender = -2.5, education = -2, income = -2, p_load = 1, lbp = 3),
-  y = c(age = -0.25, gender = -1, education = 0.5, income = 1, p_load = 0, lbp = 0)
+  x = c(age = -2.5, gender = -2.5, education = -2, income = -2, 
+        p_load = 1, lbp = 3),
+  y = c(age = -0.25, gender = -1, education = 0.5, income = 1, 
+        p_load = 0, lbp = 0)
 )
 
 # 2. Define casual structures
@@ -422,10 +424,14 @@ ggdag(g2, text = FALSE, use_labels = "label") +
 ## Add lifestyle factors
 
 ```{r}
-# 1. Name and position variables in a x-y dimension
+# 1. Position variables in x-y coordinates
 coords3 <- list(
-  x = c(age = -2.5, gender = -2.5, education = -2, income = -2, drink = -1, smoke = -1, sleep = -0.5, pa = -1, p_load = 1, lbp = 3),
-  y = c(age = -0.25, gender = -1, education = 0.5, income = 1, drink = 1, smoke = 0.5, sleep = -0.5, pa = -1, p_load = 0, lbp = 0)
+  x = c(age = -2.5, gender = -2.5, education = -2, income = -2, 
+        drink = -1, smoke = -1, sleep = -0.5, pa = -1, 
+        p_load = 1, lbp = 3),
+  y = c(age = -0.25, gender = -1, education = 0.5, income = 1, 
+        drink = 1, smoke = 0.5, sleep = -0.5, pa = -1, 
+        p_load = 0, lbp = 0)
 )
 
 # 2. Define causal structures
@@ -466,10 +472,16 @@ ggdag(g3, text = FALSE, use_labels = "label") +
 ## Add the remaining variables
 
 ```{r}
-# 1. Name and position variables in a x-y dimension
+# 1. Position variables in x-y coordinates
 coords4 <- list(
-  x = c(age = -2.5, gender = -2, education = -2, income = -2, drink = -1, smoke = -1, sleep = -0.5, pa = -1, bmi = 0, job_sat = 2, depress = 2, int_stress = 1, p_load = 1, lbp = 3),
-  y = c(age = -0.25, gender = -1, education = 0.5, income = 1, drink = 1, smoke = 0.5, sleep = -0.5, pa = -1, bmi = -1.25, job_sat = -1, depress = 1, int_stress = -0.75, p_load = 0, lbp = 0)
+  x = c(age = -2.5, gender = -2, education = -2, income = -2, 
+        drink = -1, smoke = -1, sleep = -0.5, pa = -1, 
+        bmi = 0, job_sat = 2, depress = 2, int_stress = 1, 
+        p_load = 1, lbp = 3),
+  y = c(age = -0.25, gender = -1, education = 0.5, income = 1, 
+        drink = 1, smoke = 0.5, sleep = -0.5, pa = -1, 
+        bmi = -1.25, job_sat = -1, depress = 1, int_stress = -0.75, 
+        p_load = 0, lbp = 0)
 )
 
 # 2. Define causal structures
@@ -527,19 +539,21 @@ ggdag_adjustment_set(g4, text = FALSE, use_labels = "label") +
 ## Add unmeasured variables
 
 ```{r}
-# 1. Name and position variables in a x-y dimension
+# 1. Position variables in x-y coordinates
 coords5 <- list(
   x = c(
-    prev_pa = -3.2,
+    prev_behav = -3.2,
     age = -2.5, gender = -2, education = -2, income = -2,
-    drink = -1, smoke = -1, sleep = -0.5, pa = -1, bmi = 0,
-    job_sat = 2, depress = 2, int_stress = 1, p_load = 1, lbp = 3
+    drink = -1, smoke = -1, sleep = -0.5, pa = -1, 
+    bmi = 0, job_sat = 2, depress = 2, int_stress = 1, 
+    p_load = 1, lbp = 3
   ),
   y = c(
-    prev_pa = -1.8,
+    prev_behav = -1.8,
     age = -0.25, gender = -1, education = 0.5, income = 1,
-    drink = 1, smoke = 0.5, sleep = -0.5, pa = -1, bmi = -1.25,
-    job_sat = -1, depress = 1, int_stress = -0.75, p_load = 0, lbp = 0
+    drink = 1, smoke = 0.5, sleep = -0.5, pa = -1, 
+    bmi = -1.25, job_sat = -1, depress = 1, int_stress = -0.75, 
+    p_load = 0, lbp = 0
   )
 )
 
@@ -549,18 +563,18 @@ g5 <- dagify(
   p_load ~ age + gender + education + drink + smoke + bmi,
   education ~ gender,
   income ~ age + gender + education,
-  drink ~ age + gender + education + income + prev_pa,
-  smoke ~ age + gender + education + income + prev_pa,
+  drink ~ age + gender + education + income + prev_behav,
+  smoke ~ age + gender + education + income + prev_behav,
   sleep ~ age + gender + education + income + drink + smoke + pa,
-  pa ~ age + gender + education + income + prev_pa,
-  bmi ~ age + gender + education + income + drink + smoke + sleep + pa + prev_pa,
+  pa ~ age + gender + education + income + prev_behav,
+  bmi ~ age + gender + education + income + drink + smoke + sleep + pa + prev_behav,
   job_sat ~ p_load + int_stress,
   depress ~ p_load + int_stress,
   int_stress ~ age + gender + education,
 
   coords = coords5,
   labels = c(
-    "prev_pa" = "U: Previous PA\n / health behaviour",
+    "prev_behav" = "U: Previous\n health behaviour",
     "lbp" = "LB pain",
     "p_load" = "Physical\nload",
     "age" = "Age",
@@ -578,7 +592,7 @@ g5 <- dagify(
   ),
   exposure = "p_load",
   outcome = "lbp",
-  latent = "prev_pa"
+  latent = "prev_behav"
 )
 
 ```
