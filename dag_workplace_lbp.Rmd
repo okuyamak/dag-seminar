@@ -30,12 +30,12 @@ library(ggdag)
 ```
 
 
-## Agenda (40 min)
+## Agenda (45 min)
 
-- Introduction of DAGs (10 min)
+- Introduction of DAGs (5 min)
   - Why DAGs
   - Key terms
-- Build a DAG in R (30 min)
+- Build a DAG in R (25 min)
   - Study example - Workplace physical and social factors on low back pain [@tamekuni2026]
 - Q&A (15 min)
 
@@ -74,7 +74,7 @@ dag_con <- dagify(
 
 ```{r, echo=FALSE}
 ggdag(dag_con, text = FALSE, use_labels = "label") +
-  theme_dag()
+    theme_dag()
 ```
 
 
@@ -187,7 +187,7 @@ dag_con <- dagify(
   coords = coords_con,
   labels = c(
     "exposure" = "Coffee",
-    "outcome" = "Lung cancer"
+    "outcome" = "Lung\n cancer"
     ),
   exposure = "exposure",
   outcome = "outcome"
@@ -207,7 +207,7 @@ dag_con <- dagify(
   coords = coords_con,
   labels = c(
     "exposure" = "Coffee",
-    "outcome" = "Lung cancer",
+    "outcome" = "Lung\n cancer",
     "confounder" = "Smoking"
     ),
   exposure = "exposure",
@@ -215,7 +215,7 @@ dag_con <- dagify(
 )
 ```
 
-- Back door path Coffee ← Smoking → Lung cancer
+- Back door path: Coffee ← Smoking → Lung cancer
 
 ```{r, echo=FALSE}
 ggdag(dag_con, text = FALSE, use_labels = "label") +
@@ -342,13 +342,16 @@ Study example:
 
 - High physical load (physical factor) → Low back pain
 - Good interpersonal relations (social factor) may mitigate the association
-- Previous studies on investigated physical and social factors on low back pain without causal structure
+- Previous studies investigated biopsychosocial factors on low back pain without causal structure
 
 ## Variables
 
 - Physical load - low/high (exposure)
 - Low back pain - yes/no (outcome)
 - Age, Gender, Education, Smoking, Drinking, Body mass index (BMI), Job satisfaction, Depression, Interpersonal relations stress (confounders/mediators/effect modifiers)
+
+## Start with exposure → outcome
+Important: start with a pen and paper.
 
 ## Start with exposure → outcome
 
@@ -421,6 +424,9 @@ ggdag(g2, text = FALSE, use_labels = "label") +
   theme_dag()
 ```
 
+## DAG 2
+Important: draw DAGs based on your subjective expertise.
+
 ## Add lifestyle factors
 
 ```{r}
@@ -468,6 +474,9 @@ g3 <- dagify(
 ggdag(g3, text = FALSE, use_labels = "label") +
   theme_dag()
 ```
+
+## DAG 3
+Important: elaborate on DAGs through discussions with multidiciplinary experts
 
 ## Add the remaining variables
 

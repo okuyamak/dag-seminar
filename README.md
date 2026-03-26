@@ -23,4 +23,10 @@ https://www.linkedin.com/company/nextgen-health-research-bridge
 
 View the slides here:
 
-https://okuyamak.github.io/dag-seminar/slides/dag_workplace_lbp.html
+👉 [Lecture slides](https://okuyamak.github.io/dag-seminar/slides/dag_workplace_lbp.html)
+
+## R Code
+
+Example R script for building DAGs:
+
+👉 [Download dag_example.R](https://github.com/okuyamak/dag-seminar/blob/main/dag_example.R)
