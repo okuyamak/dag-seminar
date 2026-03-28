@@ -1,8 +1,7 @@
 ---
 title: "Directed Acyclic Graphs (DAGs) in R"
-subtitle: "Workplace physical and social factors on low back pain"
 author: "Kenta Okuyama, MPH, PhD"
-date: "`r format(Sys.Date(), '%B %d, %Y')`"
+date: "March 31, 2026"
 output:
   revealjs::revealjs_presentation:
     theme: simple
@@ -113,7 +112,7 @@ ggdag(dag_med, text = FALSE, use_labels = "label") +
 
 ```{r, echo=FALSE}
 coords_col <- list(
-  x = c(confounder = 0, exposure = 1, mediator = 2, collider = 2, outcome = 3),
+  x = c(confounder = 0, exposure = 1, mediator = 2, collider = 2.5, outcome = 3),
   y = c(confounder = 0.5, exposure = 0, mediator = 0.5, collider = -0.5, outcome = 0)
 )
 dag_col <- dagify(
@@ -182,6 +181,11 @@ ggdag(dag_em, text = FALSE, use_labels = "label") +
 ## Why “adjust for confounders”?
 
 ```{r echo=FALSE}
+coords_con <- list(
+  x = c(confounder = 0.5, exposure = 1, outcome = 3),
+  y = c(confounder = 0.5, exposure = 0, outcome = 0)
+)
+
 dag_con <- dagify(
   outcome ~ exposure,
   coords = coords_con,
@@ -232,12 +236,16 @@ ggdag_adjust(dag_con, "confounder", text = FALSE, use_labels = "label") +
 ## Why not “adjust for mediators”?
 
 ```{r, echo=FALSE}
+coords_med <- list(
+  x = c(confounder = 0, exposure = 1, mediator = 1.5, outcome = 3),
+  y = c(confounder = 0.5, exposure = 0, mediator = 0.5, outcome = 0)
+)
 dag_med <- dagify(
   outcome ~ exposure,
   coords = coords_med,
   labels = c(
     "exposure" = "Physical\n activity",
-    "outcome" = "Depression"
+    "outcome" = "Depressive\n symptoms"
     ),
   exposure = "exposure",
   outcome = "outcome"
@@ -258,8 +266,8 @@ dag_med <- dagify(
   coords = coords_med,
   labels = c(
     "exposure" = "Physical\n activity",
-    "outcome" = "Depression",
-    "mediator" = "Sleep\n quality"
+    "outcome" = "Depressive\n symptoms",
+    "mediator" = "Sleep"
     ),
   exposure = "exposure",
   outcome = "outcome"
@@ -332,10 +340,11 @@ ggdag_adjust(dag_col, "collider", text = FALSE, use_labels = "label") +
 
 Study example:
 
-- Cross-sectional survey-based study
-- Japanese workers at small/medium sized enterprises (n=762)
+- Cross-sectional survey-based study in Japan
+- Workers at small/medium sized enterprises (n=762)
 - Workplace physical and social factors → Low back pain
 
+<small> *The contents are partly modified for educational purposes </small>
 <small> [@tamekuni2026] </small>
 
 ## Background and hypothesis
@@ -349,9 +358,6 @@ Study example:
 - Physical load - low/high (exposure)
 - Low back pain - yes/no (outcome)
 - Age, Gender, Education, Smoking, Drinking, Body mass index (BMI), Job satisfaction, Depression, Interpersonal relations stress (confounders/mediators/effect modifiers)
-
-## Start with exposure → outcome
-Important: start with a pen and paper.
 
 ## Start with exposure → outcome
 
@@ -424,8 +430,10 @@ ggdag(g2, text = FALSE, use_labels = "label") +
   theme_dag()
 ```
 
-## DAG 2
-Important: draw DAGs based on your subjective expertise.
+## Important points
+- Start with a pen and paper
+- Draw DAGs based on your subjective expertise.
+- Elaborate on DAGs through discussions with multi-disciplinary experts
 
 ## Add lifestyle factors
 
@@ -474,9 +482,6 @@ g3 <- dagify(
 ggdag(g3, text = FALSE, use_labels = "label") +
   theme_dag()
 ```
-
-## DAG 3
-Important: elaborate on DAGs through discussions with multidiciplinary experts
 
 ## Add the remaining variables
 
