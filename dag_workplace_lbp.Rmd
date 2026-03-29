@@ -1,7 +1,7 @@
 ---
 title: "Directed Acyclic Graphs (DAGs) in R"
 author: "Kenta Okuyama, MPH, PhD"
-date: "March 31, 2026"
+date: "March 30, 2026"
 output:
   revealjs::revealjs_presentation:
     theme: simple
@@ -141,7 +141,7 @@ ggdag(dag_col, text = FALSE, use_labels = "label") +
 ## Key terms - effect modifier
 
 - Modify the effect of exposure on outcome
-
+<small> *Standard DAGs do not directly encode effect modification [@attia2022proposal] </small>
 ```{r, echo=FALSE}
 coords_em <- list(
   x = c(confounder = 0, exposure = 1, mediator = 2, collider = 2, emodifier = 2.5, outcome = 3),
@@ -432,7 +432,7 @@ ggdag(g2, text = FALSE, use_labels = "label") +
 
 ## Important points
 - Start with a pen and paper
-- Draw DAGs based on your subjective expertise.
+- Draw DAGs based on your subjective expertise
 - Elaborate on DAGs through discussions with multi-disciplinary experts
 
 ## Add lifestyle factors
@@ -617,7 +617,6 @@ ggdag(g5, text = FALSE, use_labels = "label") +
   theme_dag()
 ```
 
-
 ## Identifying an adjustment set
 
 ```{r}
@@ -625,11 +624,61 @@ ggdag_adjustment_set(g5, text = FALSE, use_labels = "label") +
   theme_dag()
 ```
 
+## What about time-varying variables in longitudinal studies?
+Time-indexed DAGs
+
+```{r echo=FALSE}
+# 1. Position variables in x-y coordinates
+coords_tv <- list(
+  x = c(
+    C0 = -2,
+    X0 = 0,
+    C1 = 2,
+    X1 = 4,
+    Y  = 6
+  ),
+  y = c(
+    C0 = -0.5,
+    X0 = 0.5,
+    C1 = -0.25,
+    X1 = 0.5,
+    Y  = -0.5
+  )
+)
+
+# 2. Define causal structure
+g_tv <- dagify(
+  X0 ~ C0,
+  C1 ~ X0 + C0,
+  X1 ~ C1 + X0,
+  Y  ~ X0 + C0 + C1 + X1,
+
+  coords = coords_tv,
+  labels = c(
+    "C0" = "C0:\nBaseline covariate",
+    "X0" = "X0:\nExposure at baseline",
+    "C1" = "C1:\nPost-exposure,\ntime-varying covariate",
+    "X1" = "X1:\nLater exposure",
+    "Y"  = "Y:\nOutcome"
+  ),
+  exposure = "X0",
+  outcome = "Y"
+)
+```
+
+```{r echo=FALSE}
+ggdag(g_tv) +
+  theme_dag()
+```
+
+
 ## Take-home points
 
-- DAGs make causal assumptions explicit and improve adjustment decisions [@greenland1999]
-- Separate confounders vs mediators vs colliders to avoid bias [@shrier2008; @hernan2020]
+- DAGs make causal assumptions explicit and improve adjustment decisions
+- Separate confounders vs mediators vs colliders to avoid bias
 - Build DAGs based on your subjective expertise
+- Use advanced DAGs to encode effect modification/interaction
+- Use time-indexed DAGs for longitudinal studies
 
 ## Slides and codes
 
